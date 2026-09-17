@@ -1,19 +1,20 @@
-import { MOCK_SHOPS } from "@/data/MockData";
-import { NextResponse } from "next/server";
+import { notFound } from "next/navigation"
+import { getShop } from '@/lib/services/shops';
+import ShopHero from "@/components/ShopHero"
 
-type Params = { params: Promise<{ id: string }> }
+type Props = {
+    params: Promise<{ id: string }>
+}
 
-// http://localhost:3000/api/shops/[id]
-// GETリクエスト（非同期通信）
-export async function GET(_request: Request, { params }: Params) {
+export default async function ShopDetailPage({ params }: Props) {
     const { id } = await params
-    // 指定されたIDのショップを取得
-    const shop = MOCK_SHOPS.find((s) => s.id === id)
+    const shop = await getShop(id)
 
-    // ショップが存在しない場合は404エラーを返す
-    if (!shop) {
-        return NextResponse.json({ error: "not found" }, { status: 404 })
-    }
+    if (!shop) notFound()
 
-    return NextResponse.json({ shop })
+    return (
+        <div>
+            <ShopHero shop={shop} />
+        </div>
+    )
 }
